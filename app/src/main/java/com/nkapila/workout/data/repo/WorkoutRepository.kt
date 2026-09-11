@@ -124,14 +124,14 @@ class WorkoutRepository(
 
     suspend fun shouldSuggestWeightIncrease(exerciseId: String, repMax: Int): Boolean {
         val flow = dao.getSessionsForExercise(exerciseId).map { list ->
-            list.map { it.session.toModel(it.entries.map { entry -> entry.toModel() }) }
+            val sessions = list.map { it.session.toModel(it.entries.map { entry -> entry.toModel() }) }
                 .filter { session -> session.entries.any { it.exerciseId == exerciseId } }
-                .take(2)
-                .all { session ->
-                    session.entries
-                        .filter { it.exerciseId == exerciseId }
-                        .all { it.reps >= repMax }
-                }
+            if (sessions.size < 2) return@map false
+            sessions.take(2).all { session ->
+                session.entries
+                    .filter { it.exerciseId == exerciseId }
+                    .all { it.reps >= repMax }
+            }
         }
         return flow.first()
     }

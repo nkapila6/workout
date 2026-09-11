@@ -165,8 +165,8 @@ class SessionViewModel(
         viewModelScope.launch {
             val state = _uiState.value
             val pending = state.pendingEntries[exerciseId]?.firstOrNull { it.setNumber == setNumber } ?: return@launch
-            val weightKg = parseWeightKg(pending.weight, state.settings.units)
-            val reps = pending.reps.toIntOrNull() ?: 0
+            val weightKg = parseWeightKg(pending.weight.trim(), state.settings.units)
+            val reps = pending.reps.trim().toIntOrNull() ?: 0
             if (weightKg <= 0 || reps <= 0) return@launch
 
             _uiState.update { s ->
@@ -191,11 +191,12 @@ class SessionViewModel(
         _uiState.update { state ->
             val nextIndex = state.currentExerciseIndex + 1
             val exerciseIds = state.routine?.items?.map { it.exerciseId } ?: emptyList()
-            if (nextIndex >= exerciseIds.size) {
+            val advanced = if (nextIndex >= exerciseIds.size) {
                 state.copy(phase = SessionPhase.SUMMARY)
             } else {
                 state.copy(currentExerciseIndex = nextIndex)
             }
+            advanced.copy(showProgressionPrompt = false)
         }
     }
 
@@ -252,7 +253,7 @@ class SessionViewModel(
     }
 
     private fun parseWeightKg(input: String, units: String): Double {
-        val value = input.toDoubleOrNull() ?: return 0.0
+        val value = input.trim().toDoubleOrNull() ?: return 0.0
         return if (units == "lb") value / 2.2046 else value
     }
 
@@ -594,7 +595,7 @@ private fun ExercisePhase(
         Spacer(modifier = Modifier.height(14.dp))
 
         if (showProgressionPrompt) {
-            ProgressionBanner(onDismiss = onDismissProgressionPrompt)
+            ProgressionBanner(repMax = item.repMax, onDismiss = onDismissProgressionPrompt)
             Spacer(modifier = Modifier.height(10.dp))
         }
 
@@ -702,14 +703,15 @@ private fun SetLogRow(
             value = pending.reps,
             onValueChange = { onUpdate(pending.weight, it) },
             label = "REPS",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            allowDecimal = false
         )
         Spacer(modifier = Modifier.width(8.dp))
 
         val isLogged = logged != null
         Button(
             onClick = onLog,
-            enabled = !isLogged && pending.weight.isNotBlank() && pending.reps.isNotBlank(),
+            enabled = !isLogged && pending.weight.toDoubleOrNull() != null && pending.reps.toIntOrNull() != null,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = if (isLogged) SuccessGreen else Amber, contentColor = Bg),
             modifier = Modifier.width(80.dp)
@@ -729,10 +731,25 @@ private fun NumberField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
+    allowDecimal: Boolean = true,
 ) {
+    val sanitize: (String) -> String = { input ->
+        buildString {
+            var hasDot = false
+            for (c in input) {
+                if (c.isDigit()) append(c)
+                else if (allowDecimal && c == '.') {
+                    if (!hasDot) {
+                        append(c)
+                        hasDot = true
+                    }
+                }
+            }
+        }
+    }
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { onValueChange(sanitize(it)) },
         label = { Text(text = label, color = Muted, fontSize = 12.sp) },
         singleLine = true,
         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
@@ -754,7 +771,7 @@ private fun NumberField(
 }
 
 @Composable
-private fun ProgressionBanner(onDismiss: () -> Unit) {
+private fun ProgressionBanner(repMax: Int, onDismiss: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
@@ -766,7 +783,7 @@ private fun ProgressionBanner(onDismiss: () -> Unit) {
             modifier = Modifier.padding(14.dp)
         ) {
     Text(
-        text = "You hit 12s across the board. Consider adding weight next time.",
+        text = "You hit ${repMax}s across the board. Consider adding weight next time.",
         color = SuccessGreen,
         fontSize = 14.sp,
         fontWeight = FontWeight.SemiBold,
