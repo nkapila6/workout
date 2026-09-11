@@ -1,6 +1,7 @@
-- [ ] env: JDK 17 + Android SDK + gradle 8.11.1
-- [ ] scaffold: gradle files, theme, nav skeleton
-- [ ] animations: 5 figures + generic fallback
+- [x] env: JDK 17 + Android SDK + gradle 8.11.1
+- [x] repo: github.com/nkapila6/workout created, scaffold pushed
+- [x] scaffold: gradle files, theme, nav skeleton
+- [x] animations: 5 figures + generic fallback
 - [ ] data: Room, seed library, repos, settings
 - [ ] core screens: home, session flow, rest timer, exercise detail + swap
 - [ ] aux screens: progress, settings, reminders, openrouter
