@@ -2,6 +2,7 @@ package com.nkapila.workout.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
 import com.nkapila.workout.data.di.Graph
 import com.nkapila.workout.data.model.Difficulty
 import com.nkapila.workout.data.model.Exercise
@@ -91,8 +93,10 @@ fun ExerciseDetailScreen(
 ) {
     val viewModel: ExerciseDetailViewModel = viewModel(
         key = exerciseId,
-        factory = androidx.lifecycle.viewmodel.initializer.viewModelFactory {
-            ExerciseDetailViewModel(exerciseId = exerciseId)
+        factory = androidx.lifecycle.viewmodel.viewModelFactory {
+            initializer {
+                ExerciseDetailViewModel(exerciseId = exerciseId)
+            }
         }
     )
 

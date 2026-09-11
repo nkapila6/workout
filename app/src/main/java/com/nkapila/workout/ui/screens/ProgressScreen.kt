@@ -171,6 +171,7 @@ private fun BodyWeightChart(entries: List<BodyWeightEntry>, units: String) {
     val sorted = remember(entries) { entries.sortedBy { it.date } }
     val lineColor = MaterialTheme.colorScheme.primary
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    val backgroundColor = MaterialTheme.colorScheme.background
 
     val (_, yMin, yMax) = remember(sorted, units) {
         val weights = sorted.map { it.weightKg.toDisplay(units) }
@@ -227,7 +228,7 @@ private fun BodyWeightChart(entries: List<BodyWeightEntry>, units: String) {
             sorted.forEach { entry ->
                 val center = Offset(xFor(entry.date), yFor(entry.weightKg.toDisplay(units)))
                 drawCircle(
-                    color = MaterialTheme.colorScheme.background,
+                    color = backgroundColor,
                     radius = 5.dp.toPx(),
                     center = center
                 )
@@ -379,6 +380,7 @@ private fun ExerciseBestWeightChart(history: List<SessionLog>, units: String) {
 
     val lineColor = MaterialTheme.colorScheme.primary
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+    val backgroundColor = MaterialTheme.colorScheme.background
     val minWeight = data.minOf { it.second }
     val maxWeight = data.maxOf { it.second }
     val padding = max(1.0, (maxWeight - minWeight) * 0.12)
@@ -422,7 +424,7 @@ private fun ExerciseBestWeightChart(history: List<SessionLog>, units: String) {
 
             data.forEach { point ->
                 val center = Offset(xFor(point.first), yFor(point.second))
-                drawCircle(MaterialTheme.colorScheme.background, 5.dp.toPx(), center)
+                drawCircle(backgroundColor, 5.dp.toPx(), center)
                 drawCircle(lineColor, 4.dp.toPx(), center)
             }
         }

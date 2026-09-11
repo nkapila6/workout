@@ -2,6 +2,7 @@ package com.nkapila.workout.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nkapila.workout.data.di.Graph
@@ -295,12 +297,14 @@ fun SessionScreen(
 ) {
     val viewModel: SessionViewModel = viewModel(
         key = routineId,
-        factory = androidx.lifecycle.viewmodel.initializer.viewModelFactory {
-            SessionViewModel(
-                routineId = routineId,
-                repository = Graph.appContainer.repository,
-                settingsRepository = Graph.appContainer.settingsRepository,
-            )
+        factory = androidx.lifecycle.viewmodel.viewModelFactory {
+            initializer {
+                SessionViewModel(
+                    routineId = routineId,
+                    repository = Graph.appContainer.repository,
+                    settingsRepository = Graph.appContainer.settingsRepository,
+                )
+            }
         }
     )
 
