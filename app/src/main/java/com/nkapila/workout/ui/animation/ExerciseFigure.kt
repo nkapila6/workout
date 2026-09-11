@@ -68,7 +68,7 @@ fun ExerciseFigure(
         val dx = (size.width - VIEW_BOX_WIDTH * scale) / 2f
         val dy = (size.height - VIEW_BOX_HEIGHT * scale) / 2f
 
-        val t = phaseToLerpFactor(phase.value)
+        val t = if (reduceMotion) 1f else phaseToLerpFactor(phase.value)
         val pose = interpolatePose(spec, t)
 
         drawPose(

@@ -96,10 +96,10 @@ class SessionViewModel(
     private var timerJob: Job? = null
 
     init {
-        loadRoutine()
+        loadRoutine(refreshTransient = true)
     }
 
-    private fun loadRoutine() {
+    private fun loadRoutine(refreshTransient: Boolean = false) {
         viewModelScope.launch {
             val routine = repository.getRoutine(routineId)
             if (routine == null) {
@@ -122,15 +122,36 @@ class SessionViewModel(
                     )
                 }.toMutableList()
             }
-            _uiState.update {
-                it.copy(
-                    phase = SessionPhase.WARMUP,
+            _uiState.update { state ->
+                state.copy(
                     routine = routine,
                     exercises = exerciseMap,
-                    pendingEntries = entries,
-                )
+                    pendingEntries = if (refreshTransient) entries else mergePendingEntries(state.pendingEntries, entries),
+                ).let { updated ->
+                    if (refreshTransient && state.phase == SessionPhase.LOADING) updated.copy(phase = SessionPhase.WARMUP) else updated
+                }
             }
         }
+    }
+
+    private fun mergePendingEntries(
+        existing: Map<String, List<PendingSet>>,
+        fresh: Map<String, List<PendingSet>>
+    ): Map<String, List<PendingSet>> {
+        return fresh.mapValues { (exerciseId, freshList) ->
+            val existingList = existing[exerciseId]
+            if (existingList != null && existingList.size == freshList.size) {
+                existingList.zip(freshList) { old, new ->
+                    old.copy(setNumber = new.setNumber, weight = old.weight.ifBlank { new.weight }, reps = old.reps.ifBlank { new.reps })
+                }
+            } else {
+                freshList
+            }
+        }
+    }
+
+    fun reloadRoutine() {
+        loadRoutine(refreshTransient = false)
     }
 
     fun skipWarmup() {
@@ -311,6 +332,7 @@ fun SessionScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refreshSettings()
+        viewModel.reloadRoutine()
     }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

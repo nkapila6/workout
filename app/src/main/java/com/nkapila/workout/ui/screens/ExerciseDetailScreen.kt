@@ -75,6 +75,13 @@ class ExerciseDetailViewModel(
             .filter { it.id != exerciseId }
             .sortedBy { it.difficulty.ordinal }
 
+    suspend fun refresh(newId: String): Exercise? = repository.getExercise(newId)
+
+    suspend fun alternativesFor(group: MuscleGroup, excludeId: String): List<Exercise> =
+        repository.getExercisesForMuscleGroup(group.groupName)
+            .filter { it.id != excludeId }
+            .sortedBy { it.difficulty.ordinal }
+
     suspend fun swapFor(selectedId: String): Boolean {
         return try {
             repository.swapExercise(SeedData.DEFAULT_ROUTINE_ID, exerciseId, selectedId)
@@ -109,7 +116,11 @@ fun ExerciseDetailScreen(
     LaunchedEffect(exerciseId) {
         val loaded = viewModel.loadExercise()
         exercise = loaded
-        loaded?.let { alternatives = viewModel.alternatives(it.muscleGroup) }
+        loaded?.let { alternatives = viewModel.alternativesFor(it.muscleGroup, it.id) }
+    }
+
+    LaunchedEffect(exercise?.id) {
+        // No-op to keep UI reactive when the exercise object identity changes after a swap.
     }
 
     Box(modifier = Modifier.fillMaxSize().background(Bg)) {
@@ -287,6 +298,11 @@ fun ExerciseDetailScreen(
                                 val swapped = viewModel.swapFor(alt.id)
                                 if (swapped) {
                                     snackbarHostState.showSnackbar("Swapped ${exercise?.name ?: "exercise"} for ${alt.name}")
+                                    val newExercise = viewModel.refresh(alt.id)
+                                    exercise = newExercise
+                                    alternatives = newExercise?.let {
+                                        viewModel.alternativesFor(it.muscleGroup, it.id)
+                                    } ?: emptyList()
                                 }
                                 sheetState.hide()
                                 showSheet = false

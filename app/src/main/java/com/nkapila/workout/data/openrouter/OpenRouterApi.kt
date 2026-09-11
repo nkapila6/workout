@@ -111,8 +111,12 @@ class OpenRouterGenerator(
         } catch (e: HttpException) {
             throw when (e.code()) {
                 401 -> GenerationException("invalid_key")
+                429 -> GenerationException("rate_limited: rate limit hit, retry later")
+                in 500..599 -> GenerationException("server: server error, retry later")
                 else -> GenerationException("network")
             }
+        } catch (e: java.io.IOException) {
+            throw GenerationException("network")
         } catch (e: Exception) {
             throw GenerationException("network")
         }
@@ -125,8 +129,11 @@ class OpenRouterGenerator(
     }
 
     private fun String.stripFences(): String {
-        return this
-            .replace("```json", "")
+        val trimmed = this.trim()
+        val regexStrip = "^```(?:[a-zA-Z]*)\\s*\\n?([\\s\\S]*?)\\n?```\\s*$".toRegex()
+        regexStrip.find(trimmed)?.let { return it.groupValues[1].trim() }
+        return trimmed
+            .replace("```json", "", ignoreCase = true)
             .replace("```", "")
             .trim()
     }

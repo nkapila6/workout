@@ -99,7 +99,7 @@ object ReminderScheduler {
             .withSecond(0)
             .withNano(0)
 
-        if (candidate.isBefore(now) || candidate.isEqual(now)) {
+        if (!candidate.isAfter(now)) {
             candidate = candidate.plusWeeks(1)
         }
         return candidate.toInstant().toEpochMilli()
