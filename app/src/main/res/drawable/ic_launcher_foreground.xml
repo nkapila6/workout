@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Dumbbell glyph centered in the 66dp safe zone -->
+    <group android:translateX="21" android:translateY="21">
+        <!-- Left plate -->
+        <path
+            android:fillColor="#FFB400"
+            android:pathData="M16,18 L22,18 A2,2 0 0 1 24,20 L24,46 A2,2 0 0 1 22,48 L16,48 A2,2 0 0 1 14,46 L14,20 A2,2 0 0 1 16,18 Z" />
+        <!-- Right plate -->
+        <path
+            android:fillColor="#FFB400"
+            android:pathData="M44,18 L50,18 A2,2 0 0 1 52,20 L52,46 A2,2 0 0 1 50,48 L44,48 A2,2 0 0 1 42,46 L42,20 A2,2 0 0 1 44,18 Z" />
+        <!-- Connecting bar -->
+        <path
+            android:fillColor="#FFB400"
+            android:pathData="M24,31 L42,31 A2,2 0 0 1 44,33 L44,35 A2,2 0 0 1 42,37 L24,37 A2,2 0 0 1 22,35 L22,33 A2,2 0 0 1 24,31 Z" />
+    </group>
+</vector>

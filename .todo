@@ -1,0 +1,10 @@
+- [ ] env: JDK 17 + Android SDK + gradle 8.11.1
+- [ ] scaffold: gradle files, theme, nav skeleton
+- [ ] animations: 5 figures + generic fallback
+- [ ] data: Room, seed library, repos, settings
+- [ ] core screens: home, session flow, rest timer, exercise detail + swap
+- [ ] aux screens: progress, settings, reminders, openrouter
+- [ ] review pass on all code
+- [ ] build APK, fix compile errors
+- [ ] emulator smoke test + screenshots
+- [ ] explained/ docs
