@@ -55,6 +55,10 @@ class WorkoutRepository(
     suspend fun getExercisesForMuscleGroup(group: String): List<Exercise> =
         dao.getExercisesByMuscleGroup(group).map { it.toModel() }
 
+    suspend fun upsertExercise(exercise: Exercise) {
+        dao.upsertExercise(exercise.toEntity())
+    }
+
     suspend fun swapExercise(routineId: String, oldExerciseId: String, newExerciseId: String) {
         val routine = dao.getRoutineWithItems(routineId) ?: return
         val updated = routine.items.map { item ->

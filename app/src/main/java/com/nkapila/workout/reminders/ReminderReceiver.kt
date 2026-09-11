@@ -14,6 +14,7 @@ import com.nkapila.workout.data.di.Graph
 import com.nkapila.workout.data.settings.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -29,8 +30,8 @@ class ReminderReceiver : BroadcastReceiver() {
 
                 if (day in 1..7 && Graph.appContainerIsInitialized()) {
                     val settings = withTimeoutOrNull(5_000) {
-                        Graph.appContainer.settingsRepository.settings
-                    }?.firstOrNull()
+                        Graph.appContainer.settingsRepository.settings.first()
+                    }
                     if (settings != null && settings.remindersEnabled) {
                         ReminderScheduler.scheduleSingleDay(context, day, settings)
                     }

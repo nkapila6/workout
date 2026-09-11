@@ -296,7 +296,11 @@ fun SessionScreen(
     val viewModel: SessionViewModel = viewModel(
         key = routineId,
         factory = androidx.lifecycle.viewmodel.initializer.viewModelFactory {
-            SessionViewModel(routineId = routineId)
+            SessionViewModel(
+                routineId = routineId,
+                repository = Graph.appContainer.repository,
+                settingsRepository = Graph.appContainer.settingsRepository,
+            )
         }
     )
 

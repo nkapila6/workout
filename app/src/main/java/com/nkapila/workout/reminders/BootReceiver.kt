@@ -6,6 +6,7 @@ import android.content.Intent
 import com.nkapila.workout.data.di.Graph
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -19,8 +20,8 @@ class BootReceiver : BroadcastReceiver() {
             runCatching {
                 if (Graph.appContainerIsInitialized()) {
                     val settings = withTimeoutOrNull(5_000) {
-                        Graph.appContainer.settingsRepository.settings
-                    }?.firstOrNull()
+                        Graph.appContainer.settingsRepository.settings.first()
+                    }
                     if (settings != null) {
                         ReminderScheduler.schedule(context, settings)
                     }
